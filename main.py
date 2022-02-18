@@ -5,6 +5,7 @@
 import re
 import os
 
+# Added for dependent files.
 script_path = os.path.dirname(os.path.abspath(__file__))
 
 # Define class

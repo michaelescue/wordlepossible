@@ -3,10 +3,13 @@
 # Application to help find Wordle words.
 
 import re
+import os
 
+script_path = os.path.dirname(os.path.abspath(__file__))
 
 # Define class
 class WordleWord:
+    
     # Wordle word size
     size = 5
 
@@ -24,9 +27,9 @@ class WordleWord:
     # final = ['e','?','g','e','r']
 
     # Files
-    out = "wordle_possible_words.txt"
-    charSet = "possible_set.txt"
-    words = "english_word_set.txt"
+    out = f'{script_path}wordle_possible_words.txt'
+    charSet = f'{script_path}/possible_set.txt'
+    words = f'{script_path}/english_word_set.txt'
 
     # Initialization
     def __init__(self):

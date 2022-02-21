@@ -28,7 +28,7 @@ class WordleWord:
     # final = ['e','?','g','e','r']
 
     # Files
-    out = f'{script_path}wordle_possible_words.txt'
+    out = f'{script_path}/wordle_possible_words.txt'
     charSet = f'{script_path}/possible_set.txt'
     words = f'{script_path}/english_word_set.txt'
 
@@ -264,7 +264,7 @@ if __name__ == '__main__':
     # Create WordleWord object.
     word = WordleWord()
 
-    # Loop guesses and possibilites.
+    # Loop guesses and possibilities.
     while 1:
         guessWord = input("Which word did you guess?: ")
         if guessWord == "":
@@ -272,6 +272,6 @@ if __name__ == '__main__':
             break
         if word.guess(guessWord) != -1:
             word.possibilities()
-            print(word.final)
-            print(word.requiredLetters)
-            print(word.possibleLetters)
+            print(f'Final set: {word.final}')
+            print(f'Required set: {word.requiredLetters}')
+            print(f'Possible set: {word.possibleLetters}')

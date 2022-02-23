@@ -21,31 +21,19 @@ int main(void){
 
     // Create guessWord instance
     std::string guessWord;
-    
+
     //Loop guesses and possibilities.
     while(1){
         
-        // Prompt for guess
-        std::cout << "Which word did you guess?: ";
-
-        // Read guess
-        std::cin >> guessWord;
-        
-        if(guessWord.compare("") == 0){
-            std::cout << "Exiting.";
-            break;
-            }
-    }
-            
-/*         if(word.guess(guessWord) != -1){
+        if(word.guess() != -1){
             word.possibilities();
-            print(f'Final set: {word.final}')
-            print(f'Required set: {word.requiredLetters}');
-            print(f'Possible set: {word.possibleLetters}');
-            }
+            word.printsets();
+        }
         
+        else{
+            std::cout << "Exiting."<< std::endl;
         }
         
    // On off chance of loop break
-   return -1; */
+   return -1; 
 };

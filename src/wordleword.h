@@ -21,6 +21,7 @@
 #include <iostream>
 #include <string>
 #include <exception>
+#include <algorithm>
 #include <vector>
 
 // User defined types
@@ -42,6 +43,7 @@ class WordleWord{
         // Letter set spaces
         charSet requiredLetters;
         charSet possibleLetter;
+        charSet guessedSet;
         stringSet possibleWords;
         char* final;
         intSet yellowPos;
@@ -265,7 +267,7 @@ int WordleWord::guess(std::string guessWord){
         }
 
         catch (std::exception& e){
-            cout << "Incorrect input. Try again.";
+            cout << "Incorrect input. Try agaguessSetin.";
         }
 
         try{
@@ -294,20 +296,35 @@ int WordleWord::guess(std::string guessWord){
 
     // Identifying yellow letters
     bool jump = 0;
+    string requiredLetterPos;
     set<int> difference;
+    std::vector<int>::iterator vitr;
+    vector<int> v(WordleWord::size * 2);
+    charSet::iterator charItr;
 
     while(1){
 
         try{
-            //Prompt for Yellow letter positions.
-            string requiredLetterPos;
-            cout << "Yellow Letter Position";
-            for(itr = openPos.begin(); itr != openPos.end(); itr++){
-                for(itr = yellowPos.begin(); itr != yellowPos.end(); itr++){
+            // Get difference in YellowPos and openPos sets.
+            vitr = set_difference(openPos.begin(), openPos.end(),
+                yellowPos.begin(), yellowPos.end(),
+                v.begin());
 
-                }
+            // Prompt for Yellow letter positions.
+            string requiredLetterPos;
+            cout << "Yellow Letter Position {";
+
+            // Print available positions.
+            for(vitr; vitr != v.end(); vitr++){
+                cout << *vitr;
+                if(vitr != v.end()--)
+                    cout << ",";
             }
-            
+
+            // Cap end of message.
+            cout << "}? Enter to continue:";
+
+            // Get input.
             getline(cin, requiredLetterPos);
             if(requiredLetterPos == "")
                 break;
@@ -317,35 +334,45 @@ int WordleWord::guess(std::string guessWord){
             cout << "Incorrect input. Try again.";
         }
 
+        // Check if required letter is already a green letter.
         for(uint32_t i = 0; i < WordleWord::size; i++){
-            // Check if required letter is already a green letter.
-            if each == requiredLetterPos:
-                print(f'{requiredLetterPos} is a final letter and cannot be a Yellow letter.')
+
+            if(final[i] == stoi(requiredLetterPos)){
+                cout << requiredLetterPos << "is a final letter and cannot be a Yellow letter.";
             // Add the letter to required letters if not.
-            else:
-                try:
+            }
+
+            else{
+                try{
+
                     // Place the letter of the guessWord in the selected position into the final set.
-                    if (int(requiredLetterPos) >= 0) and (int(requiredLetterPos) < self.size + 1):
-                        pos = int(requiredLetterPos) - 1
-                        self.requiredLetters.add(guessWord[pos])
-                        self.yellowPos.add(pos + 1)
-                    else:
-                        print(f'The number {int(requiredLetterPos)} is out of range. Try again.')
+                    if ((stoi(requiredLetterPos) >= 0) && (stoi(requiredLetterPos) < size + 1)){
+                        uint32_t pos = stoi(requiredLetterPos) - 1;
+                        requiredLetters.insert(guessWord[pos]);
+                        yellowPos.insert(pos + 1);
+                    }
 
-                except ValueError:
-                    print("Incorrect value type. Try again.")
+                    else{
+                        cout << "The number " << requiredLetterPos << " is out of range. Try again.";
+                    }
+                }
 
-    // Remove assumed gray letters
-    guessSet = set()
-    for guessWordLetter in guessWord:
-        guessSet.add(guessWordLetter)
+                catch (std::exception& e){
+                        cout << "Incorrect value type. Try again.";
+                }
+            }
+        }
 
-    for each in self.requiredLetters:
-        guessSet.remove(each)
+        // Remove assumed gray letters
+        for (int i = 0; i < size; i++)
+            guessedSet.insert(guessWord[i]);
 
-    for each in guessSet:
-        self.possibleLetters.remove(each)
-    }
+        for(charItr = requiredLetters.begin(); charItr != requiredLetters.end(); charItr++)
+            guessedSet.erase(*charItr);
+
+        for(charItr = guessedSet.begin(); charItr != guessedSet.end(); charItr++)
+            possibleLetter.erase(*charItr);
+    
     }
 
 #endif // Header guard.

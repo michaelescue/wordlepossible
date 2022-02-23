@@ -117,7 +117,7 @@ class WordleWord{
         
         // Catch file related exceptions
         catch (std::exception& e){
-            std::cout << 'Exception with possible character set: ' << e.what() << '\n';
+            std::cout << "Exception with possible character set: " << e.what() << '\n';
         }
 
         // Read in possible word set.
@@ -138,12 +138,12 @@ class WordleWord{
             istream.close();
 
             // Print total words added to set. 
-            std::cout << count << ' words added to possibilities.';
+            std::cout << count << " words added to possibilities.";
         }
 
         // Catch file related exceptions
         catch (std::exception& e){
-            std::cout << 'Exception with possible word set: ' << e.what() << 'n';
+            std::cout << "Exception with possible word set: " << e.what() << 'n';
         }
 
 
@@ -153,7 +153,7 @@ class WordleWord{
             ostream.open(WordleWord::out);
 
             // Write header
-            ostream << 'Possible Words\n';
+            ostream << "Possible Words\n";
 
             // Write each word from possible word set.
             for (strItr = WordleWord::possibleWords.begin(); strItr != WordleWord::possibleWords.end(); strItr++) {
@@ -167,7 +167,7 @@ class WordleWord{
 
         // Catch file related exceptions
         catch (std::exception& e){
-            std::cout << 'Exception with possible word set: ' << e.what() << 'n';
+            std::cout << "Exception with possible word set: " << e.what() << 'n';
         }
 
 }; // WordleWord Constructor

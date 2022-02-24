@@ -21,6 +21,7 @@
 #include <iostream>
 #include <string>
 #include <exception>
+#include <regex>    
 
 using namespace std;
 
@@ -40,16 +41,21 @@ class WordleWord{
         // Guesses
         uint32_t guesses;
 
+        // Guess word variable
+        string guessWord;
+
         // Letter set spaces
         charSet requiredLetters;
-        charSet possibleLetter;
+        charSet possibleLetters;
         charSet guessedSet;
         stringSet possibleWords;
         char* final;
         intSet yellowPos;
 
         // Data paths
-        std::string out, possibleCharSet, words;
+        string out = "../wordle_possible_words.txt";
+        string possibleCharSet = "../possible_set.txt";
+        string words = "../english_word_set.txt";
 
         // Helper functions
         std::set<int> getOpenPositions();
@@ -57,7 +63,7 @@ class WordleWord{
         void printSet(charSet x);
         void printSet(intSet x);
         void printArray(char* x);
-
+        string lowerString(string x);
 
     public:
 
@@ -74,6 +80,8 @@ class WordleWord{
 
         void printsets();
 
+
+
 }; // Class WordleWord
 
 // Initialization
@@ -82,9 +90,6 @@ WordleWord::WordleWord(uint32_t wordSize, uint32_t guessSize){
     // Set Word parameters
     size = wordSize;
     guesses = guessSize;
-    out = "../wordle_possible_words.txt";
-    possibleCharSet = "../possible_set.txt";
-    words = "../english_word_set.txt";
 
     // Dynamic allocation of final char array.
     final = new char[size];
@@ -111,7 +116,7 @@ WordleWord::WordleWord(uint32_t wordSize, uint32_t guessSize){
 
             // Write possible characters to set.
             for (int i = 0; i < (sizeof(temp)-1); i++){
-                WordleWord::possibleLetter.insert(temp[i]);
+                WordleWord::possibleLetters.insert(temp[i]);
             }
         }
 
@@ -119,7 +124,7 @@ WordleWord::WordleWord(uint32_t wordSize, uint32_t guessSize){
 
         // Print set of possible characters.
         std::cout << "\nAdding to possible set: ";
-        for (charItr = WordleWord::possibleLetter.begin(); charItr != WordleWord::possibleLetter.end(); charItr++) {
+        for (charItr = WordleWord::possibleLetters.begin(); charItr != WordleWord::possibleLetters.end(); charItr++) {
             std::cout << *charItr << " ";
         }
         std::cout << '\n';
@@ -146,6 +151,7 @@ WordleWord::WordleWord(uint32_t wordSize, uint32_t guessSize){
         while( std::getline(istream,temp) ){
             if(temp.length() == 5){
                 count++;
+                temp = lowerString(temp);
                 WordleWord::possibleWords.insert(temp);
             }
         }
@@ -173,7 +179,7 @@ WordleWord::WordleWord(uint32_t wordSize, uint32_t guessSize){
 
         // Write each word from possible word set.
         for (strItr = WordleWord::possibleWords.begin(); strItr != WordleWord::possibleWords.end(); strItr++) {
-            std::cout << *charItr << " ";
+            std::cout << *strItr << " ";
         }
 
         // Close output file.
@@ -240,7 +246,7 @@ void WordleWord::printsets(){
     printSet(requiredLetters);
     
     cout << "Possible Letters: ";
-    printSet(possibleLetter);
+    printSet(possibleLetters);
 
     cout << "Guessed Letters: ";
     printSet(guessedSet);
@@ -256,14 +262,20 @@ void WordleWord::printsets(){
 
 }
 
+string WordleWord::lowerString(string x){
+
+    for(uint32_t i = 0; i < sizeof(x); i++){
+        x[i] = tolower(x[i]);
+    }
+
+    return x;
+}
+
  // Guess a word
 int WordleWord::guess(){
 
-    // Guess word variable
-    std::string guessWord;
-
-    // Input filtering
-    while(1){
+        // Input filtering
+        while(1){
 
         // Prompt for guess
         std::cout << "Which word did you guess?: ";
@@ -435,9 +447,90 @@ int WordleWord::guess(){
             guessedSet.erase(*charItr);
 
         for(charItr = guessedSet.begin(); charItr != guessedSet.end(); charItr++)
-            possibleLetter.erase(*charItr);
+            possibleLetters.erase(*charItr);
     
         return 0;
+}
+
+// Produce possible letter combinations.
+void WordleWord::possibilities(void){
+
+        // Count possibilities
+        uint32_t count = 0;
+
+        // Open file for writing.
+        std::ofstream ostream;
+        ostream.open(out);
+
+        // Find list of possible words to remove through iteration
+        stringSet difference;
+        stringSet::iterator stritr;
+        charSet::iterator charitr;
+        if (requiredLetters.empty() != 0){
+            for(stritr = possibleWords.begin(); stritr != possibleWords.end(); stritr++){
+                for(charitr = requiredLetters.begin(); charitr != requiredLetters.end(); charitr++){
+                    string temp = *stritr;
+                    if(temp.find(*charitr) == string::npos)
+                        difference.insert(*stritr);
+                }
+            }
+        }
+
+        // Remove words after iteration
+        for(stritr = difference.begin(); stritr != difference.end(); stritr++)
+            possibleWords.erase(*stritr);
+
+        // Construct RE pattern with known letter positions and possible chars.
+        string pattern = "";
+        difference.clear();
+        for(uint32_t i = 0; i < size; i++){
+            if(final[i] == '?'){
+                // First bracket
+                pattern = pattern + '[';
+
+                // Iterate through possible letters.
+                // Only chars which do NOT match guess word char at same position and
+                // and is a yellow letter position.
+                for(charitr = possibleLetters.begin(); charitr != possibleLetters.end(); charitr++)
+                    if( (*charitr != guessWord[i]) && (yellowPos.count(i + 1) != 0))
+                        pattern = pattern + *charitr;
+
+                // Second bracket
+                pattern = pattern + ']';
+            }
+
+            else{
+                pattern = pattern + final[i];
+            }
+        }
+
+        #ifdef DEBUG
+        
+        cout << pattern;
+
+        #endif
+
+        // Create regex instance.
+        regex re (pattern);
+
+        // Search compiled RE with possible word list
+        for(stritr = possibleWords.begin(); stritr != possibleWords.end(); stritr++){
+            if (regex_match(*stritr, re)){
+                ostream << *stritr << '\n';
+                count++;
+            }
+        }
+
+        // Close output file
+        ostream.close();
+
+        cout << count << " Possible Wordle Words." << '\n';
+
+        // If small enough count print to terminal
+        //if(count < 20)
+           // printSet(possibleWords);
+        //else
+            cout << " See file {self.out} for possible words. " << count << "possible.\n";
 }
 
 #endif // Header guard.

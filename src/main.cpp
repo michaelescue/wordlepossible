@@ -26,7 +26,7 @@ int main(void){
     while(1){
         
         if(word.guess() != -1){
-            //word.possibilities();
+            word.possibilities();
             word.printsets();
         }
 
@@ -36,6 +36,6 @@ int main(void){
         }
     }
         
-   // On off chance of loop break
+   // On off chance of loop break.
    return -1; 
 }

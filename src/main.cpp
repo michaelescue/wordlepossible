@@ -24,16 +24,22 @@ int main(void){
 
     //Loop guesses and possibilities.
     while(1){
-        
-        if(word.guess() != -1){
-            word.possibilities();
-            word.printsets();
+        try{
+            if(word.guess() != -1){
+                word.possibilities();
+                word.printsets();
+            }
+
+            else{
+                std::cout << "Exiting."<< std::endl;
+                return 0;
+            }
         }
 
-        else{
-            std::cout << "Exiting."<< std::endl;
-            return 0;
-        }
+        catch (std::exception& e){
+        std::cout << "Exception : " << e.what() << '\n';
+    }
+        
     }
         
    // On off chance of loop break.

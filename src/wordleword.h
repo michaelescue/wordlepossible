@@ -9,8 +9,6 @@
  * 
  */
 
-#define DEBUG
-
 #ifndef WORDLEWORD  // Header guard.
 #define WORDLEWORD
 
@@ -331,7 +329,7 @@ int WordleWord::guess(){
             // Prompt for Green letter positions.
             cout << "Green Letter Position {";
             for(itr = openPos.begin(); itr != openPos.end(); itr++){
-                cout << " " << *itr;
+                cout << " " << *itr << " ";
             }
             
             cout << "} Enter to continue: ";
@@ -392,7 +390,7 @@ int WordleWord::guess(){
 
             // Print available positions.
             for(itr = difference.begin(); itr != difference.end(); itr++){
-                cout << " " << *itr;
+                cout << " " << *itr << " ";
             }
 
             // Cap end of message.
@@ -471,7 +469,7 @@ void WordleWord::possibilities(void){
         stringSet difference;
         stringSet::iterator stritr;
         charSet::iterator charitr;
-        if (requiredLetters.empty() > 0){
+        if (requiredLetters.empty() == false){
             for(stritr = possibleWords.begin(); stritr != possibleWords.end(); stritr++){
                 for(charitr = requiredLetters.begin(); charitr != requiredLetters.end(); charitr++){
                     string temp = *stritr;
@@ -489,7 +487,7 @@ void WordleWord::possibilities(void){
 
         // Remove words after iteration
         for(stritr = difference.begin(); stritr != difference.end(); stritr++)
-            if( possibleWords.erase(*stritr) != 0)
+            if( possibleWords.erase(*stritr) != 0);
 
             #ifdef DEBUG
                 cout << *stritr << " erased from Possible words.";
@@ -534,18 +532,21 @@ void WordleWord::possibilities(void){
                 ostream << *stritr << '\n';
                 count++;
             }
+            else{
+                possibleWords.erase(*stritr);
+            }
         }
 
         // Close output file
         ostream.close();
 
-        cout << count << " Possible Wordle Words." << '\n';
+        cout << possibleWords.size() << " Possible Wordle Words." << '\n';
 
         // If small enough count print to terminal
         if(count < 20)
             printSet(possibleWords);
         else
-            cout << " See file " << out << " for possible words.\n";
+            cout << "See file " << out << " for possible words.\n";
 }
 
 #endif // Header guard.

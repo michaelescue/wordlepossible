@@ -26,14 +26,16 @@ int main(void){
     while(1){
         
         if(word.guess() != -1){
-            word.possibilities();
+            //word.possibilities();
             word.printsets();
         }
-        
+
         else{
             std::cout << "Exiting."<< std::endl;
+            return 0;
         }
+    }
         
    // On off chance of loop break
    return -1; 
-};
+}

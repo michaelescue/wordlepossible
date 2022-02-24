@@ -21,12 +21,12 @@
 #include <iostream>
 #include <string>
 #include <exception>
-#include <algorithm>
-#include <vector>
+
+using namespace std;
 
 // User defined types
 typedef std::set<char> charSet;
-typedef std::set<std::string> stringSet;
+typedef std::set<string> stringSet;
 typedef std::set<int> intSet;
 
 // Class definition
@@ -53,6 +53,10 @@ class WordleWord{
 
         // Helper functions
         std::set<int> getOpenPositions();
+        void printSet(stringSet x);
+        void printSet(charSet x);
+        void printSet(intSet x);
+        void printArray(char* x);
 
 
     public:
@@ -66,7 +70,9 @@ class WordleWord{
 
         void possibilities(void);
 
-        int guess(std::string guessWord);
+        int guess();
+
+        void printsets();
 
 }; // Class WordleWord
 
@@ -80,8 +86,10 @@ WordleWord::WordleWord(uint32_t wordSize, uint32_t guessSize){
     possibleCharSet = "../possible_set.txt";
     words = "../english_word_set.txt";
 
-    // Fill the final set with unkown chars.
+    // Dynamic allocation of final char array.
     final = new char[size];
+
+    // Fill the final set with unkown chars.
     for(int i = 0; i < wordSize; i++){
         final[i] = '?';
     }
@@ -182,8 +190,6 @@ WordleWord::WordleWord(uint32_t wordSize, uint32_t guessSize){
 
 }; // WordleWord Constructor
 
-using namespace std;
-
 std::set<int> WordleWord::getOpenPositions(){
         std::set<int> markedPositions;
         std::uint32_t i = 0;
@@ -197,8 +203,64 @@ std::set<int> WordleWord::getOpenPositions(){
         return markedPositions;
 }
 
+void WordleWord::printSet(intSet x){
+    intSet::iterator y;
+    for(y = x.begin(); y != x.end(); y++){
+        cout << " " << *y;
+    }
+    cout << '\n';
+}
+
+void WordleWord::printSet(charSet x){
+    charSet::iterator y;
+    for(y = x.begin(); y != x.end(); y++){
+        cout << " " << *y;
+    }
+    cout << '\n';
+}
+
+void WordleWord::printSet(stringSet x){
+    stringSet::iterator y;
+    for(y = x.begin(); y != x.end(); y++){
+        cout << " " << *y;
+    }
+    cout << '\n';
+}
+
+void WordleWord::printArray(char *x){
+    for(uint32_t i = 0; i < sizeof(x) ; i++){
+        cout << " " << x[i];
+    }
+    cout << '\n';
+}
+
+void WordleWord::printsets(){
+
+    cout << "Required Letters: ";
+    printSet(requiredLetters);
+    
+    cout << "Possible Letters: ";
+    printSet(possibleLetter);
+
+    cout << "Guessed Letters: ";
+    printSet(guessedSet);
+
+    cout << "Final Letters: ";
+    printArray(final);
+
+    //cout << "Possible Words:\n";
+    //printSet(possibleWords);
+
+    cout << "Past Yellow letter positions: ";
+    printSet(yellowPos);
+
+}
+
  // Guess a word
-int WordleWord::guess(std::string guessWord){
+int WordleWord::guess(){
+
+    // Guess word variable
+    std::string guessWord;
 
     // Input filtering
     while(1){
@@ -238,7 +300,7 @@ int WordleWord::guess(std::string guessWord){
 
     // Identifying green letters
     string correctLetterPos;
-    set<int> openPos = WordleWord::getOpenPositions();
+    intSet openPos;
     intSet::iterator itr;
 
     while(1){
@@ -246,19 +308,21 @@ int WordleWord::guess(std::string guessWord){
         
         try{
             // Check for currently open positions in the final set
+            openPos = WordleWord::getOpenPositions();
+
             if(openPos.empty()){
-                cout << "Congratulations on finishing your" << WordleWord::size << "letter Wordle!";
+                cout << "Congratulations on finishing your " << WordleWord::size << " letter Wordle!\n";
                 return -1;
                 // Add word to correctly guessed words set in future.
                 }
 
             // Prompt for Green letter positions.
-            cout << "Green Letter Positions";
+            cout << "Green Letter Position {";
             for(itr = openPos.begin(); itr != openPos.end(); itr++){
-                cout << *itr;
+                cout << " " << *itr;
             }
-
-            cout << "Enter to continue: ";
+            
+            cout << "} Enter to continue: ";
 
             // Scan input for Green letter positions.
             getline(cin, correctLetterPos);
@@ -267,7 +331,7 @@ int WordleWord::guess(std::string guessWord){
         }
 
         catch (std::exception& e){
-            cout << "Incorrect input. Try agaguessSetin.";
+            cout << "Incorrect input. Try again.";
         }
 
         try{
@@ -285,7 +349,8 @@ int WordleWord::guess(std::string guessWord){
 
         catch (std::exception& e){
             cout << "Incorrect value type. Try again.";
-
+        }
+    }
 
     // Copy identified green letters into required letters set.
     int count = 0;
@@ -296,38 +361,36 @@ int WordleWord::guess(std::string guessWord){
 
     // Identifying yellow letters
     bool jump = 0;
-    string requiredLetterPos;
+    string requiredLetter;
+    uint32_t requiredLetterPos;
     set<int> difference;
-    std::vector<int>::iterator vitr;
-    vector<int> v(WordleWord::size * 2);
     charSet::iterator charItr;
 
     while(1){
 
         try{
+            difference = openPos;
             // Get difference in YellowPos and openPos sets.
-            vitr = set_difference(openPos.begin(), openPos.end(),
-                yellowPos.begin(), yellowPos.end(),
-                v.begin());
+            for(itr = yellowPos.begin(); itr != yellowPos.end(); itr++){
+                difference.erase(*itr);
+            }
 
             // Prompt for Yellow letter positions.
-            string requiredLetterPos;
             cout << "Yellow Letter Position {";
 
             // Print available positions.
-            for(vitr; vitr != v.end(); vitr++){
-                cout << *vitr;
-                if(vitr != v.end()--)
-                    cout << ",";
+            for(itr = difference.begin(); itr != difference.end(); itr++){
+                cout << " " << *itr;
             }
 
             // Cap end of message.
             cout << "}? Enter to continue:";
 
             // Get input.
-            getline(cin, requiredLetterPos);
-            if(requiredLetterPos == "")
+            getline(cin, requiredLetter);
+            if(requiredLetter == "")
                 break;
+            requiredLetterPos = stoi(requiredLetter, nullptr, 10);
         }
 
         catch (std::exception& e){
@@ -337,8 +400,8 @@ int WordleWord::guess(std::string guessWord){
         // Check if required letter is already a green letter.
         for(uint32_t i = 0; i < WordleWord::size; i++){
 
-            if(final[i] == stoi(requiredLetterPos)){
-                cout << requiredLetterPos << "is a final letter and cannot be a Yellow letter.";
+            if(final[i] == (requiredLetterPos)){
+                cout << requiredLetter << "is a final letter and cannot be a Yellow letter.";
             // Add the letter to required letters if not.
             }
 
@@ -346,14 +409,14 @@ int WordleWord::guess(std::string guessWord){
                 try{
 
                     // Place the letter of the guessWord in the selected position into the final set.
-                    if ((stoi(requiredLetterPos) >= 0) && (stoi(requiredLetterPos) < size + 1)){
-                        uint32_t pos = stoi(requiredLetterPos) - 1;
+                    if (((requiredLetterPos) >= 0) && ((requiredLetterPos) < size + 1)){
+                        uint32_t pos = (requiredLetterPos) - 1;
                         requiredLetters.insert(guessWord[pos]);
                         yellowPos.insert(pos + 1);
                     }
 
                     else{
-                        cout << "The number " << requiredLetterPos << " is out of range. Try again.";
+                        cout << "The number " << requiredLetter << " is out of range. Try again.";
                     }
                 }
 
@@ -362,6 +425,7 @@ int WordleWord::guess(std::string guessWord){
                 }
             }
         }
+    }
 
         // Remove assumed gray letters
         for (int i = 0; i < size; i++)
@@ -373,6 +437,7 @@ int WordleWord::guess(std::string guessWord){
         for(charItr = guessedSet.begin(); charItr != guessedSet.end(); charItr++)
             possibleLetter.erase(*charItr);
     
-    }
+        return 0;
+}
 
 #endif // Header guard.

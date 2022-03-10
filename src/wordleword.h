@@ -93,7 +93,7 @@ WordleWord::WordleWord(uint32_t wordSize, uint32_t guessSize){
     final = new char[size];
 
     // Fill the final set with unkown chars.
-    for(int i = 0; i < wordSize; i++){
+    for(uint32_t i = 0; i < size; i++){
         final[i] = '?';
     }
 
@@ -262,7 +262,7 @@ void WordleWord::printsets(){
 
 string WordleWord::lowerString(string x){
 
-    for(uint32_t i = 0; i < sizeof(x); i++){
+    for(uint32_t i = 0; i < size; i++){
         x[i] = tolower(x[i]);
     }
 
@@ -438,7 +438,7 @@ int WordleWord::guess(){
     }
 
         // Remove assumed gray letters
-        for (int i = 0; i < size; i++)
+        for (uint32_t i = 0; i < size; i++)
             guessedSet.insert(guessWord[i]);
 
         for(charItr = requiredLetters.begin(); charItr != requiredLetters.end(); charItr++)
